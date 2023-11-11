@@ -7,6 +7,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"strings"
+	"time"
 )
 
 type Node struct {
@@ -22,8 +23,7 @@ func (nm NodesManager) GetNodes() ([]Node, error) {
 	}
 
 	var nodes *v1.NodeList
-	var ok bool
-	if nodes, ok = nm.nodesCache[currentContext]; !ok {
+	if cache, ok := nm.nodesCache[currentContext]; !ok {
 		clientset, err := nm.NewClientset()
 		if err != nil {
 			return nil, err
@@ -33,7 +33,12 @@ func (nm NodesManager) GetNodes() ([]Node, error) {
 		if err != nil {
 			return nil, err
 		}
-		nm.nodesCache[currentContext] = nodes
+		nm.nodesCache[currentContext] = snapshot{
+			createdAt: time.Now(),
+			nodes:     nodes,
+		}
+	} else {
+		nodes = cache.nodes
 	}
 
 	myNodes := make([]Node, len(nodes.Items))

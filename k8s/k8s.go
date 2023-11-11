@@ -6,11 +6,17 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
+	"time"
 )
+
+type snapshot struct {
+	createdAt time.Time
+	nodes     *v1.NodeList
+}
 
 type NodesManager struct {
 	kubeconfig string
-	nodesCache map[string]*v1.NodeList
+	nodesCache map[string]snapshot
 }
 
 func NewNodesManager() (NodesManager, error) {
@@ -20,7 +26,7 @@ func NewNodesManager() (NodesManager, error) {
 	}
 	return NodesManager{
 		kubeconfig: kubeconfig,
-		nodesCache: make(map[string]*v1.NodeList),
+		nodesCache: make(map[string]snapshot),
 	}, nil
 }
 
