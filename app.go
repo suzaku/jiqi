@@ -7,12 +7,19 @@ import (
 
 // App struct
 type App struct {
-	ctx context.Context
+	ctx          context.Context
+	nodesManager k8s.NodesManager
 }
 
 // NewApp creates a new App application struct
 func NewApp() *App {
-	return &App{}
+	nm, err := k8s.NewNodesManager()
+	if err != nil {
+		panic(err) // FIXME
+	}
+	return &App{
+		nodesManager: nm,
+	}
 }
 
 // startup is called when the app starts. The context is saved
@@ -22,7 +29,7 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) ListNodes() []k8s.Node {
-	nodes, err := k8s.GetNodes()
+	nodes, err := a.nodesManager.GetNodes()
 	if err != nil {
 		// TODO: Show error message
 		panic(err)
@@ -31,7 +38,7 @@ func (a *App) ListNodes() []k8s.Node {
 }
 
 func (a *App) GetCurrentContext() string {
-	currentContext, err := k8s.GetCurrentContext()
+	currentContext, err := a.nodesManager.GetCurrentContext()
 	if err != nil {
 		panic(err)
 	}

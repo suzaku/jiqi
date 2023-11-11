@@ -15,16 +15,27 @@ type Node struct {
 	DashboardURL   string `json:"dashboardURL"`
 }
 
-func GetNodes() ([]Node, error) {
-	clientset, err := newClientset()
+func (nm NodesManager) GetNodes() ([]Node, error) {
+	currentContext, err := nm.GetCurrentContext()
 	if err != nil {
 		return nil, err
 	}
 
-	nodes, err := clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
+	var nodes *v1.NodeList
+	var ok bool
+	if nodes, ok = nm.nodesCache[currentContext]; !ok {
+		clientset, err := nm.NewClientset()
+		if err != nil {
+			return nil, err
+		}
+
+		nodes, err = clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+		if err != nil {
+			return nil, err
+		}
+		nm.nodesCache[currentContext] = nodes
 	}
+
 	myNodes := make([]Node, len(nodes.Items))
 	for i, node := range nodes.Items {
 		// TODO: Handle error

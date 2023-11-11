@@ -1,28 +1,43 @@
 package k8s
 
 import (
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	"os"
 	"path/filepath"
 )
 
-func getKubeconfig() (string, error) {
-	// TODO: Allow customizing kubeconfig path
-	if home, err := os.UserHomeDir(); err == nil {
-		return filepath.Join(home, ".kube", "config"), nil
-	} else {
-		return "", err
-	}
+type NodesManager struct {
+	kubeconfig string
+	nodesCache map[string]*v1.NodeList
 }
 
-func newClientset() (*kubernetes.Clientset, error) {
+func NewNodesManager() (NodesManager, error) {
 	kubeconfig, err := getKubeconfig()
 	if err != nil {
-		return nil, err
+		return NodesManager{}, err
 	}
+	return NodesManager{
+		kubeconfig: kubeconfig,
+		nodesCache: make(map[string]*v1.NodeList),
+	}, nil
+}
+
+func (nm NodesManager) GetCurrentContext() (string, error) {
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: nm.kubeconfig},
+		nil,
+	).RawConfig()
+	if err != nil {
+		return "", err
+	}
+	return config.CurrentContext, nil
+}
+
+func (nm NodesManager) NewClientset() (*kubernetes.Clientset, error) {
 	// use the current context in kubeconfig
-	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+	config, err := clientcmd.BuildConfigFromFlags("", nm.kubeconfig)
 	if err != nil {
 		return nil, err
 	}
@@ -34,17 +49,11 @@ func newClientset() (*kubernetes.Clientset, error) {
 	return clientset, nil
 }
 
-func GetCurrentContext() (string, error) {
-	kubeconfig, err := getKubeconfig()
-	if err != nil {
+func getKubeconfig() (string, error) {
+	// TODO: Allow customizing kubeconfig path
+	if home, err := os.UserHomeDir(); err == nil {
+		return filepath.Join(home, ".kube", "config"), nil
+	} else {
 		return "", err
 	}
-	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
-		nil,
-	).RawConfig()
-	if err != nil {
-		return "", err
-	}
-	return config.CurrentContext, nil
 }

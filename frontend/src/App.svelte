@@ -27,7 +27,7 @@
 </script>
 
 <header>
-  Current Context: {currentContext}
+  <span>Current Context:</span> {currentContext}
 </header>
 
 <main>
