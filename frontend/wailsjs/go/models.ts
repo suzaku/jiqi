@@ -1,4 +1,4 @@
-export namespace main {
+export namespace k8s {
 	
 	export class Node {
 	    name: string;

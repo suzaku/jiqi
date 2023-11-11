@@ -1,6 +1,7 @@
 package main
 
 import (
+	"changeme/k8s"
 	"context"
 )
 
@@ -20,8 +21,8 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) ListNodes() []Node {
-	nodes, err := getNodes()
+func (a *App) ListNodes() []k8s.Node {
+	nodes, err := k8s.GetNodes()
 	if err != nil {
 		// TODO: Show error message
 		panic(err)

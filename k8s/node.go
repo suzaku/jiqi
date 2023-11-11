@@ -1,4 +1,4 @@
-package main
+package k8s
 
 import (
 	"context"
@@ -19,7 +19,7 @@ type Node struct {
 	DashboardURL   string `json:"dashboardURL"`
 }
 
-func getNodes() ([]Node, error) {
+func GetNodes() ([]Node, error) {
 	kubeconfig, err := getKubeconfig()
 	if err != nil {
 		return nil, err

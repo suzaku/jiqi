@@ -1,11 +1,11 @@
 <script lang="ts">
   import {ListNodes} from '../wailsjs/go/main/App.js'
-  import type {main} from '../wailsjs/go/models'
+  import type {k8s} from '../wailsjs/go/models'
   import {BrowserOpenURL} from "../wailsjs/runtime";
   import TailwindCSS from "./lib/TailwindCSS.svelte";
 
   let loading: boolean = false
-  let nodes: main.Node[] = []
+  let nodes: k8s.Node[] = []
 
   function listNodes(): void {
     loading = true
