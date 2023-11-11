@@ -1,9 +1,10 @@
 <script lang="ts">
-  import {ListNodes} from '../wailsjs/go/main/App.js'
+  import {ListNodes, GetCurrentContext} from '../wailsjs/go/main/App.js'
   import type {k8s} from '../wailsjs/go/models'
   import {BrowserOpenURL} from "../wailsjs/runtime";
   import TailwindCSS from "./lib/TailwindCSS.svelte";
 
+  let currentContext: string = "Unknown"
   let loading: boolean = false
   let nodes: k8s.Node[] = []
 
@@ -15,8 +16,19 @@
     })
   }
 
+  function getCurrentContext(): void {
+    GetCurrentContext().then(result => {
+      currentContext = result
+    })
+  }
+
+  getCurrentContext()
   listNodes()
 </script>
+
+<header>
+  Current Context: {currentContext}
+</header>
 
 <main>
   {#if loading}

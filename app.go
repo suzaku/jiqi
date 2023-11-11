@@ -29,3 +29,11 @@ func (a *App) ListNodes() []k8s.Node {
 	}
 	return nodes
 }
+
+func (a *App) GetCurrentContext() string {
+	currentContext, err := k8s.GetCurrentContext()
+	if err != nil {
+		panic(err)
+	}
+	return currentContext
+}

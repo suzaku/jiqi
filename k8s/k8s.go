@@ -33,3 +33,18 @@ func newClientset() (*kubernetes.Clientset, error) {
 	}
 	return clientset, nil
 }
+
+func GetCurrentContext() (string, error) {
+	kubeconfig, err := getKubeconfig()
+	if err != nil {
+		return "", err
+	}
+	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		&clientcmd.ClientConfigLoadingRules{ExplicitPath: kubeconfig},
+		nil,
+	).RawConfig()
+	if err != nil {
+		return "", err
+	}
+	return config.CurrentContext, nil
+}
