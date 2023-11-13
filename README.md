@@ -2,7 +2,7 @@
 
 ## About
 
-This is the official Wails Svelte-TS template.
+jiqi /dʒi:tʃi:/ is a tool that help you view Kubernetes nodes in an EKS cluster.
 
 ## Live Development
 
