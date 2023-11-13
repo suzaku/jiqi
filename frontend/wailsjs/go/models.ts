@@ -4,6 +4,7 @@ export namespace k8s {
 	    name: string;
 	    consolePageURL: string;
 	    dashboardURL: string;
+	    instanceType: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new Node(source);
@@ -14,6 +15,7 @@ export namespace k8s {
 	        this.name = source["name"];
 	        this.consolePageURL = source["consolePageURL"];
 	        this.dashboardURL = source["dashboardURL"];
+	        this.instanceType = source["instanceType"];
 	    }
 	}
 

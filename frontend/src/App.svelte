@@ -55,14 +55,16 @@
     <thead>
       <tr>
         <th>Node</th>
+        <th>Instance Type</th>
         <th>EC2</th>
         <th>Datadog</th>
       </tr>
     </thead>
     <tbody>
-    {#each nodes as {name, consolePageURL, dashboardURL}}
+    {#each nodes as {name, consolePageURL, dashboardURL, instanceType}}
       <tr class="mx-4 my-4 px-4 py-4 hover:bg-cyan-50 node">
-        <td class="" on:click={copyNodeName(name)}>{name}</td>
+        <td class="name" on:click={copyNodeName(name)}>{name}</td>
+        <td>{instanceType}</td>
         <td class="ec2">
           <a on:click={BrowserOpenURL(consolePageURL)}></a>
         </td>
@@ -89,6 +91,16 @@
   }
   .node a:hover {
     cursor: pointer;
+  }
+  tr.node {
+    vertical-align: middle;
+  }
+
+  .node .name {
+    max-width: 16em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .ec2 a {

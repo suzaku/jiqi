@@ -14,6 +14,7 @@ type Node struct {
 	Name           string `json:"name"`
 	ConsolePageURL string `json:"consolePageURL"`
 	DashboardURL   string `json:"dashboardURL"`
+	InstanceType   string `json:"instanceType"`
 }
 
 func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
@@ -52,13 +53,23 @@ func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
 		if err != nil {
 			panic(err)
 		}
+		instanceType, ok := getInstanceType(node)
+		if !ok {
+			instanceType = "unknown"
+		}
 		myNodes[i] = Node{
 			Name:           node.Name,
 			ConsolePageURL: consolePageURL,
 			DashboardURL:   dashboardURL,
+			InstanceType:   instanceType,
 		}
 	}
 	return myNodes, nil
+}
+
+func getInstanceType(node v1.Node) (string, bool) {
+	instanceType, ok := node.Labels["node.kubernetes.io/instance-type"]
+	return instanceType, ok
 }
 
 func getDashboardURL(node v1.Node) (string, error) {
