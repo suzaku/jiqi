@@ -13,6 +13,7 @@
     loading = true
     ListNodes().then(result => {
       nodes = result
+      sort("instanceType")
       loading = false
     })
   }
@@ -28,6 +29,30 @@
       message = `Node name copied to clipboard: ${name}`
       setTimeout(() => message = "", 5000)
     })
+  }
+
+  let sortBy = {col: "instanceType", ascending: true};
+
+  $: sort = (column: string) => {
+
+    if (sortBy.col == column) {
+      sortBy.ascending = !sortBy.ascending
+    } else {
+      sortBy.col = column
+      sortBy.ascending = true
+    }
+
+    // Modifier to sorting function for ascending or descending
+    let sortModifier = (sortBy.ascending) ? 1 : -1;
+
+    let sort = (a, b) =>
+      (a[column] < b[column])
+      ? -1 * sortModifier
+      : (a[column] > b[column])
+      ? 1 * sortModifier
+      : 0;
+
+    nodes = nodes.sort(sort);
   }
 
   getCurrentContext()
@@ -54,8 +79,8 @@
   <table class="mt-4">
     <thead>
       <tr>
-        <th>Node</th>
-        <th>Instance Type</th>
+        <th on:click={sort("name")}>Node</th>
+        <th on:click={sort("instanceType")}>Instance Type</th>
         <th>EC2</th>
         <th>Datadog</th>
       </tr>
