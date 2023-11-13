@@ -51,19 +51,51 @@
   {/if}
 
   {#if nodes}
-  <ul id="nodes" class="mt-4">
+  <table class="mt-4">
+    <thead>
+      <tr>
+        <th>Node</th>
+        <th>EC2</th>
+        <th>Datadog</th>
+      </tr>
+    </thead>
+    <tbody>
     {#each nodes as {name, consolePageURL, dashboardURL}}
-      <li class="group mx-4 my-4 flex rounded-2xl border px-4 py-4 hover:bg-cyan-50 justify-between">
-        <div class="flex-initial w-30" on:click={copyNodeName(name)}>{name}</div>
-        <div class="flex justify-between hidden group-hover:block">
-          <a on:click={BrowserOpenURL(consolePageURL)} class="hover:cursor-pointer">AWS EC2 Page</a>
-          <a on:click={BrowserOpenURL(dashboardURL)} class="hover:cursor-pointer">Datadog Host Dashboard</a>
-        </div>
-      </li>
+      <tr class="mx-4 my-4 px-4 py-4 hover:bg-cyan-50 node">
+        <td class="" on:click={copyNodeName(name)}>{name}</td>
+        <td class="ec2">
+          <a on:click={BrowserOpenURL(consolePageURL)}></a>
+        </td>
+        <td class="datadog">
+          <a on:click={BrowserOpenURL(dashboardURL)}></a>
+        </td>
+      </tr>
     {/each}
-  </ul>
+    </tbody>
+  </table>
   {/if}
 </main>
 
 <style>
+  .node a {
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    margin-top: 1em;
+    margin-left: 1.2em;
+    margin-right: 1.2em;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+  .node a:hover {
+    cursor: pointer;
+  }
+
+  .ec2 a {
+    background-image: url('data:image/svg+xml;base64,PHN2ZyBjbGFzcz0idy02IGgtNiIgaGVpZ2h0PSI0MCIgd2lkdGg9IjQwIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxkZWZzPjxsaW5lYXJHcmFkaWVudCB4MT0iMCUiIHkxPSIxMDAlIiB4Mj0iMTAwJSIgeTI9IjAlIiBpZD0iQXJjaF9BbWF6b24tRUMyXzMyX3N2Z19fYSI+PHN0b3Agc3RvcC1jb2xvcj0iI0M4NTExQiIgb2Zmc2V0PSIwJSI+PC9zdG9wPjxzdG9wIHN0b3AtY29sb3I9IiNGOTAiIG9mZnNldD0iMTAwJSI+PC9zdG9wPjwvbGluZWFyR3JhZGllbnQ+PC9kZWZzPjxnIGZpbGw9Im5vbmUiIGZpbGwtcnVsZT0iZXZlbm9kZCI+PHBhdGggZD0iTTAgMGg0MHY0MEgweiIgZmlsbD0idXJsKCNBcmNoX0FtYXpvbi1FQzJfMzJfc3ZnX19hKSI+PC9wYXRoPjxwYXRoIGQ9Ik0yNi4wNTIgMjdMMjYgMTMuOTQ4IDEzIDE0djEzLjA1MkwyNi4wNTIgMjd6TTI3IDE0aDJ2MWgtMnYyaDJ2MWgtMnYyaDJ2MWgtMnYyaDJ2MWgtMnYyaDJ2MWgtMnYuMDUyYS45NS45NSAwIDAxLS45NDguOTQ4SDI2djJoLTF2LTJoLTJ2MmgtMXYtMmgtMnYyaC0xdi0yaC0ydjJoLTF2LTJoLTJ2MmgtMXYtMmgtLjA1MmEuOTUuOTUgMCAwMS0uOTQ4LS45NDhWMjdoLTJ2LTFoMnYtMmgtMnYtMWgydi0yaC0ydi0xaDJ2LTJoLTJ2LTFoMnYtMmgtMnYtMWgydi0uMDUyYS45NS45NSAwIDAxLjk0OC0uOTQ4SDEzdi0yaDF2Mmgydi0yaDF2Mmgydi0yaDF2Mmgydi0yaDF2Mmgydi0yaDF2MmguMDUyYS45NS45NSAwIDAxLjk0OC45NDhWMTR6bS02IDE5SDdWMTloMnYtMUg3LjA2MkM2LjQ3NyAxOCA2IDE4LjQ3NyA2IDE5LjA2MnYxMy44NzZDNiAzMy41MjMgNi40NzcgMzQgNy4wNjIgMzRoMTMuODc3Yy41ODUgMCAxLjA2MS0uNDc3IDEuMDYxLTEuMDYyVjMxaC0xdjJ6TTM0IDcuMDYydjEzLjg3NmMwIC41ODUtLjQ3NiAxLjA2Mi0xLjA2MSAxLjA2MkgzMHYtMWgzVjdIMTl2M2gtMVY3LjA2MkMxOCA2LjQ3NyAxOC40NzcgNiAxOS4wNjIgNmgxMy44NzdDMzMuNTI0IDYgMzQgNi40NzcgMzQgNy4wNjJ6IiBmaWxsPSIjRkZGIj48L3BhdGg+PC9nPjwvc3ZnPg==');
+  }
+
+  .datadog a {
+    background-image: url('https://www.vectorlogo.zone/logos/datadoghq/datadoghq-icon.svg');
+  }
 </style>
