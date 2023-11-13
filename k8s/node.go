@@ -16,7 +16,7 @@ type Node struct {
 	DashboardURL   string `json:"dashboardURL"`
 }
 
-func (nm NodesManager) GetNodes() ([]Node, error) {
+func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
 	currentContext, err := nm.GetCurrentContext()
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (nm NodesManager) GetNodes() ([]Node, error) {
 			return nil, err
 		}
 
-		nodes, err = clientset.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+		nodes, err = clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 		if err != nil {
 			return nil, err
 		}

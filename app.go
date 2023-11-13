@@ -29,7 +29,7 @@ func (a *App) startup(ctx context.Context) {
 }
 
 func (a *App) ListNodes() []k8s.Node {
-	nodes, err := a.nodesManager.GetNodes()
+	nodes, err := a.nodesManager.GetNodes(a.ctx)
 	if err != nil {
 		// TODO: Show error message
 		panic(err)
