@@ -13,12 +13,13 @@ import (
 )
 
 type Node struct {
-	Name           string       `json:"name"`
-	ConsolePageURL string       `json:"consolePageURL"`
-	DashboardURL   string       `json:"dashboardURL"`
-	InstanceType   string       `json:"instanceType"`
-	Usage          NodeUsage    `json:"usage"`
-	Capacity       NodeCapacity `json:"capacity"`
+	Name           string            `json:"name"`
+	Labels         map[string]string `json:"labels"`
+	ConsolePageURL string            `json:"consolePageURL"`
+	DashboardURL   string            `json:"dashboardURL"`
+	InstanceType   string            `json:"instanceType"`
+	Usage          NodeUsage         `json:"usage"`
+	Capacity       NodeCapacity      `json:"capacity"`
 }
 
 type NodeUsage struct {
@@ -118,6 +119,7 @@ func (nm NodesManager) GetNodes(ctx context.Context, shouldClearCache bool) ([]N
 		}
 		myNodes[i] = Node{
 			Name:           node.Name,
+			Labels:         node.Labels,
 			ConsolePageURL: consolePageURL,
 			DashboardURL:   dashboardURL,
 			InstanceType:   instanceType,

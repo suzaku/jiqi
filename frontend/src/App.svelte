@@ -3,17 +3,20 @@
   import type {k8s} from '../wailsjs/go/models'
   import {BrowserOpenURL, ClipboardSetText} from "../wailsjs/runtime";
   import TailwindCSS from "./lib/TailwindCSS.svelte";
+  import {onMount} from "svelte";
 
   let currentContext: string = "Unknown"
-  let loading: boolean = false
+  let loading: boolean = true
   let nodes: k8s.Node[] = []
   let message: string = ""
+  let labelSelectors: string = ""
+  let shouldClearCache: boolean = false
 
-  function listNodes(shouldClearCache: boolean = false): void {
+  function listNodes(shouldClearCache: boolean = false, labelSelectors: string = ""): void {
     nodes = []
     loading = true
-    ListNodes(shouldClearCache).then(result => {
-      nodes = result
+    ListNodes(shouldClearCache, labelSelectors).then(result => {
+      nodes = result == null ? [] : result
       sort("instanceType", false)
       loading = false
     })
@@ -78,8 +81,10 @@
     return `${quantity.toFixed(2)} ${unit}`
   }
 
-  getCurrentContext()
-  listNodes()
+  $: {
+    getCurrentContext()
+    listNodes(shouldClearCache, labelSelectors)
+  }
 </script>
 
 <header>
@@ -89,6 +94,12 @@
   <button
     class="border rounded-2xl px-4 py-2"
     on:click={() => listNodes(true)} >Refresh</button>
+  <div>
+    <label>
+      Label Selectors:
+      <input type="text" bind:value={labelSelectors}>
+    </label>
+  </div>
 </header>
 
 <main>

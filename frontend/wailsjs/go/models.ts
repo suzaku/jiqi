@@ -30,6 +30,7 @@ export namespace k8s {
 	}
 	export class Node {
 	    name: string;
+	    labels: {[key: string]: string};
 	    consolePageURL: string;
 	    dashboardURL: string;
 	    instanceType: string;
@@ -43,6 +44,7 @@ export namespace k8s {
 	    constructor(source: any = {}) {
 	        if ('string' === typeof source) source = JSON.parse(source);
 	        this.name = source["name"];
+	        this.labels = source["labels"];
 	        this.consolePageURL = source["consolePageURL"];
 	        this.dashboardURL = source["dashboardURL"];
 	        this.instanceType = source["instanceType"];
