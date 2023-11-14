@@ -97,7 +97,7 @@
   <div>
     <label>
       Label Selectors:
-      <input type="text" bind:value={labelSelectors}>
+      <input type="text" bind:value={labelSelectors} autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" >
     </label>
   </div>
 </header>
