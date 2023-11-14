@@ -97,7 +97,7 @@
   </div>
   {/if}
 
-  {#if nodes}
+  {#if nodes.length > 0}
   <table class="mt-4">
     <thead>
       <tr>
