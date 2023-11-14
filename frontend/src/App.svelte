@@ -55,6 +55,28 @@
     nodes = nodes.sort(sort);
   }
 
+  function humanizeSize(bytes: number): string {
+    let quantity: number
+    let unit: string
+    if (bytes < 2 ** 10) {
+      quantity = bytes
+      unit = "B"
+    } else if (bytes < 2 ** 20) {
+      quantity = bytes / 2 ** 10
+      unit = "KiB"
+    } else if (bytes < 2 ** 30) {
+      quantity = bytes / 2 ** 20
+      unit = "MiB"
+    } else if (bytes < 2 ** 40) {
+      quantity = bytes / 2 ** 30
+      unit = "GiB"
+    } else {
+      quantity = bytes / 2 ** 40
+      unit = "TiB"
+    }
+    return `${quantity.toFixed(2)} ${unit}`
+  }
+
   getCurrentContext()
   listNodes()
 </script>
@@ -88,17 +110,17 @@
       </tr>
     </thead>
     <tbody>
-    {#each nodes as {name, consolePageURL, dashboardURL, instanceType, usage}}
+    {#each nodes as {name, consolePageURL, dashboardURL, instanceType, usage, capacity}}
       <tr class="mx-4 my-4 px-4 py-4 hover:bg-cyan-50 node">
         <td class="name" on:click={copyNodeName(name)}>{name}</td>
         <td>
           <a on:click={BrowserOpenURL(`https://instances.vantage.sh/aws/ec2/${instanceType}`)}>{instanceType}</a>
         </td>
         <td>
-          {usage.cpu}
+          {usage.cpu.toFixed(1)}/{capacity.cpu}
         </td>
         <td>
-          {usage.memory}
+          {humanizeSize(usage.memory)}/{humanizeSize(capacity.memory)}
         </td>
         <td class="ec2">
           <a on:click={BrowserOpenURL(consolePageURL)}></a>

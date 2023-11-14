@@ -13,14 +13,20 @@ import (
 )
 
 type Node struct {
-	Name           string    `json:"name"`
-	ConsolePageURL string    `json:"consolePageURL"`
-	DashboardURL   string    `json:"dashboardURL"`
-	InstanceType   string    `json:"instanceType"`
-	Usage          NodeUsage `json:"usage"`
+	Name           string       `json:"name"`
+	ConsolePageURL string       `json:"consolePageURL"`
+	DashboardURL   string       `json:"dashboardURL"`
+	InstanceType   string       `json:"instanceType"`
+	Usage          NodeUsage    `json:"usage"`
+	Capacity       NodeCapacity `json:"capacity"`
 }
 
 type NodeUsage struct {
+	Cpu    float64 `json:"cpu"`
+	Memory float64 `json:"memory"`
+}
+
+type NodeCapacity struct {
 	Cpu    float64 `json:"cpu"`
 	Memory float64 `json:"memory"`
 }
@@ -106,12 +112,17 @@ func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
 		if !ok {
 			instanceType = "unknown"
 		}
+		capacity := NodeCapacity{
+			Cpu:    node.Status.Capacity.Cpu().AsApproximateFloat64(),
+			Memory: node.Status.Capacity.Memory().AsApproximateFloat64(),
+		}
 		myNodes[i] = Node{
 			Name:           node.Name,
 			ConsolePageURL: consolePageURL,
 			DashboardURL:   dashboardURL,
 			InstanceType:   instanceType,
 			Usage:          usages[node.Name],
+			Capacity:       capacity,
 		}
 	}
 

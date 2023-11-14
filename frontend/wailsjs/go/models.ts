@@ -1,5 +1,19 @@
 export namespace k8s {
 	
+	export class NodeCapacity {
+	    cpu: number;
+	    memory: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new NodeCapacity(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.cpu = source["cpu"];
+	        this.memory = source["memory"];
+	    }
+	}
 	export class NodeUsage {
 	    cpu: number;
 	    memory: number;
@@ -20,6 +34,7 @@ export namespace k8s {
 	    dashboardURL: string;
 	    instanceType: string;
 	    usage: NodeUsage;
+	    capacity: NodeCapacity;
 	
 	    static createFrom(source: any = {}) {
 	        return new Node(source);
@@ -32,6 +47,7 @@ export namespace k8s {
 	        this.dashboardURL = source["dashboardURL"];
 	        this.instanceType = source["instanceType"];
 	        this.usage = this.convertValues(source["usage"], NodeUsage);
+	        this.capacity = this.convertValues(source["capacity"], NodeCapacity);
 	    }
 	
 		convertValues(a: any, classs: any, asMap: boolean = false): any {
@@ -52,6 +68,7 @@ export namespace k8s {
 		    return a;
 		}
 	}
+	
 
 }
 
