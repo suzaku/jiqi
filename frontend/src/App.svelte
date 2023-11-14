@@ -81,16 +81,24 @@
       <tr>
         <th on:click={sort("name")}>Node</th>
         <th on:click={sort("instanceType")}>Instance Type</th>
+        <th>CPU Usage</th>
+        <th>Mem Usage</th>
         <th>EC2</th>
         <th>Datadog</th>
       </tr>
     </thead>
     <tbody>
-    {#each nodes as {name, consolePageURL, dashboardURL, instanceType}}
+    {#each nodes as {name, consolePageURL, dashboardURL, instanceType, usage}}
       <tr class="mx-4 my-4 px-4 py-4 hover:bg-cyan-50 node">
         <td class="name" on:click={copyNodeName(name)}>{name}</td>
         <td>
           <a on:click={BrowserOpenURL(`https://instances.vantage.sh/aws/ec2/${instanceType}`)}>{instanceType}</a>
+        </td>
+        <td>
+          {usage.cpu}
+        </td>
+        <td>
+          {usage.memory}
         </td>
         <td class="ec2">
           <a on:click={BrowserOpenURL(consolePageURL)}></a>

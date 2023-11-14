@@ -6,15 +6,50 @@ import (
 	"fmt"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/tools/clientcmd"
+	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 	"strings"
 	"time"
 )
 
 type Node struct {
-	Name           string `json:"name"`
-	ConsolePageURL string `json:"consolePageURL"`
-	DashboardURL   string `json:"dashboardURL"`
-	InstanceType   string `json:"instanceType"`
+	Name           string    `json:"name"`
+	ConsolePageURL string    `json:"consolePageURL"`
+	DashboardURL   string    `json:"dashboardURL"`
+	InstanceType   string    `json:"instanceType"`
+	Usage          NodeUsage `json:"usage"`
+}
+
+type NodeUsage struct {
+	Cpu    float64 `json:"cpu"`
+	Memory float64 `json:"memory"`
+}
+
+func (nm NodesManager) getNodesMetric(ctx context.Context) (map[string]NodeUsage, error) {
+	config, err := clientcmd.BuildConfigFromFlags("", nm.kubeconfig)
+	if err != nil {
+		return nil, err
+	}
+
+	mc, err := metrics.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+	nodeMetricsList, err := mc.MetricsV1beta1().NodeMetricses().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	usages := make(map[string]NodeUsage, len(nodeMetricsList.Items))
+	for _, metric := range nodeMetricsList.Items {
+		memUsage := metric.Usage.Memory().AsApproximateFloat64()
+		cpuUsage := metric.Usage.Cpu().AsApproximateFloat64()
+		usages[metric.Name] = NodeUsage{
+			Cpu:    cpuUsage,
+			Memory: memUsage,
+		}
+	}
+	return usages, nil
 }
 
 func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
@@ -23,23 +58,37 @@ func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
 		return nil, err
 	}
 
-	var nodes *v1.NodeList
-	if cache, ok := nm.nodesCache[currentContext]; !ok {
-		clientset, err := nm.NewClientset()
-		if err != nil {
-			return nil, err
-		}
+	if cache, ok := nm.nodesCache[currentContext]; ok {
+		return cache.nodes, nil
+	}
 
-		nodes, err = clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	clientset, err := nm.NewClientset()
+	if err != nil {
+		return nil, err
+	}
+
+	chUsageResult := make(chan map[string]NodeUsage)
+	go func() {
+		defer close(chUsageResult)
+		result, err := nm.getNodesMetric(ctx)
 		if err != nil {
-			return nil, err
+			panic(err)
 		}
-		nm.nodesCache[currentContext] = snapshot{
-			createdAt: time.Now(),
-			nodes:     nodes,
+		chUsageResult <- result
+	}()
+
+	nodes, err := clientset.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	var usages map[string]NodeUsage
+	var ok bool
+	select {
+	case usages, ok = <-chUsageResult:
+		if !ok {
+			usages = make(map[string]NodeUsage)
 		}
-	} else {
-		nodes = cache.nodes
 	}
 
 	myNodes := make([]Node, len(nodes.Items))
@@ -62,8 +111,15 @@ func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
 			ConsolePageURL: consolePageURL,
 			DashboardURL:   dashboardURL,
 			InstanceType:   instanceType,
+			Usage:          usages[node.Name],
 		}
 	}
+
+	nm.nodesCache[currentContext] = CachedNodes{
+		createdAt: time.Now(),
+		nodes:     myNodes,
+	}
+
 	return myNodes, nil
 }
 
