@@ -7,7 +7,7 @@
   "frontend:dev:watcher": "npm run dev",
   "frontend:dev:serverUrl": "auto",
   "author": {
-    "name": "xliao",
-    "email": "xliao@flexport.com"
+    "name": "suzaku",
+    "email": "satorulogic@gmail.com"
   }
 }
