@@ -58,13 +58,13 @@ func (nm NodesManager) getNodesMetric(ctx context.Context) (map[string]NodeUsage
 	return usages, nil
 }
 
-func (nm NodesManager) GetNodes(ctx context.Context) ([]Node, error) {
+func (nm NodesManager) GetNodes(ctx context.Context, shouldClearCache bool) ([]Node, error) {
 	currentContext, err := nm.GetCurrentContext()
 	if err != nil {
 		return nil, err
 	}
 
-	if cache, ok := nm.nodesCache[currentContext]; ok {
+	if cache, ok := nm.nodesCache[currentContext]; ok && !shouldClearCache {
 		return cache.nodes, nil
 	}
 

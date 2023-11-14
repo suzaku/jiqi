@@ -4,4 +4,4 @@ import {k8s} from '../models';
 
 export function GetCurrentContext():Promise<string>;
 
-export function ListNodes():Promise<Array<k8s.Node>>;
+export function ListNodes(arg1:boolean):Promise<Array<k8s.Node>>;

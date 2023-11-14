@@ -28,8 +28,8 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) ListNodes() []k8s.Node {
-	nodes, err := a.nodesManager.GetNodes(a.ctx)
+func (a *App) ListNodes(shouldClearCache bool) []k8s.Node {
+	nodes, err := a.nodesManager.GetNodes(a.ctx, shouldClearCache)
 	if err != nil {
 		// TODO: Show error message
 		panic(err)

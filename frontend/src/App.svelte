@@ -9,11 +9,12 @@
   let nodes: k8s.Node[] = []
   let message: string = ""
 
-  function listNodes(): void {
+  function listNodes(shouldClearCache: boolean = false): void {
+    nodes = []
     loading = true
-    ListNodes().then(result => {
+    ListNodes(shouldClearCache).then(result => {
       nodes = result
-      sort("instanceType")
+      sort("instanceType", false)
       loading = false
     })
   }
@@ -33,9 +34,9 @@
 
   let sortBy = {col: "instanceType", ascending: true};
 
-  $: sort = (column: string) => {
+  $: sort = (column: string, shouldInvertAscending: boolean = true) => {
 
-    if (sortBy.col == column) {
+    if (sortBy.col == column && shouldInvertAscending) {
       sortBy.ascending = !sortBy.ascending
     } else {
       sortBy.col = column
@@ -82,7 +83,12 @@
 </script>
 
 <header>
-  <span>Current Context:</span> {currentContext}
+  <div>
+    <span class="font-bold">Current Context:</span> {currentContext}
+  </div>
+  <button
+    class="border rounded-2xl px-4 py-2"
+    on:click={() => listNodes(true)} >Refresh</button>
 </header>
 
 <main>

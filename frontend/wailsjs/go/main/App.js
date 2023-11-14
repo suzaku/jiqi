@@ -6,6 +6,6 @@ export function GetCurrentContext() {
   return window['go']['main']['App']['GetCurrentContext']();
 }
 
-export function ListNodes() {
-  return window['go']['main']['App']['ListNodes']();
+export function ListNodes(arg1) {
+  return window['go']['main']['App']['ListNodes'](arg1);
 }
