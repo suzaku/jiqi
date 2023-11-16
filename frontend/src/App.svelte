@@ -12,7 +12,7 @@
   let labelSelectors: string = ""
   let shouldClearCache: boolean = false
 
-  function listNodes(shouldClearCache: boolean = false, labelSelectors: string = ""): void {
+  function listNodes(): void {
     nodes = []
     loading = true
     ListNodes(shouldClearCache, labelSelectors).then(result => {
@@ -20,6 +20,7 @@
       sort("instanceType", false)
       loading = false
     })
+    shouldClearCache = false
   }
 
   function getCurrentContext(): void {
@@ -83,7 +84,7 @@
 
   $: {
     getCurrentContext()
-    listNodes(shouldClearCache, labelSelectors)
+    shouldClearCache, labelSelectors, listNodes()
   }
 </script>
 
@@ -93,7 +94,7 @@
   </div>
   <button
     class="border rounded-2xl px-4 py-2"
-    on:click={() => listNodes(true)} >Refresh</button>
+    on:click={() => shouldClearCache = true} >Refresh</button>
   <div>
     <label>
       Label Selectors:
