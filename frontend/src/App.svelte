@@ -8,9 +8,12 @@
   let currentContext: string = "Unknown"
   let loading: boolean = true
   let labels: {[key: string]: string[]}
+  let labelKeys: string[]
   let nodes: k8s.Node[] = []
   let message: string = ""
   let labelSelectors: string = ""
+  let selectedLabel: string = ""
+  let selectedValue: string = ""
   let shouldClearCache: boolean = false
 
   function listNodes(): void {
@@ -87,10 +90,25 @@
     return `${quantity.toFixed(2)} ${unit}`
   }
 
-  $: {
-    getCurrentContext()
-    shouldClearCache, labelSelectors, listNodes()
+  function updateLabelSelectors() {
+    if (selectedLabel != "" && selectedValue != "") {
+      labelSelectors = `${selectedLabel}=${selectedValue}`
+    } else {
+      labelSelectors = ""
+    }
   }
+
+  getCurrentContext()
+
+  $: candidateValues = selectedLabel != "" ? labels[selectedLabel] : [];
+
+  $: {
+    if (labels != null) {
+      labelKeys = Object.keys(labels).sort()
+    }
+  }
+
+  $: shouldClearCache, labelSelectors, listNodes()
 </script>
 
 <header>
@@ -100,12 +118,37 @@
   <button
     class="border rounded-2xl px-4 py-2"
     on:click={() => shouldClearCache = true} >Refresh</button>
-  <div>
+  <form on:submit|preventDefault={updateLabelSelectors}>
+    {#if labelKeys != null}
     <label>
-      Label Selectors:
-      <input type="text" bind:value={labelSelectors} autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" >
+      Label:
+      <select
+        bind:value="{selectedLabel}"
+      >
+        <option value="">--</option>
+        {#each labelKeys as key}
+        <option value={key}>
+          {key}
+        </option>
+        {/each}
+      </select>
     </label>
-  </div>
+    <label>
+      Value:
+      <select
+        bind:value={selectedValue}
+      >
+        <option value="">--</option>
+        {#if candidateValues.length > 0}
+          {#each candidateValues as val}
+          <option value="{val}">{val}</option>
+          {/each}
+        {/if}
+      </select>
+    </label>
+    <input type="submit" value="Query"  >
+    {/if}
+  </form>
 </header>
 
 <main>

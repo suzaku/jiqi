@@ -3,7 +3,6 @@ package main
 import (
 	"changeme/k8s"
 	"context"
-	"github.com/wailsapp/wails/v2/pkg/runtime"
 	"strings"
 )
 
@@ -35,17 +34,23 @@ type QueriedNodes struct {
 	Labels map[string][]string `json:"labels"`
 }
 
-func newQueriedNodes(nodes []k8s.Node) QueriedNodes {
-	qn := QueriedNodes{
-		Nodes:  nodes,
-		Labels: make(map[string][]string),
-	}
+func indexLabels(nodes []k8s.Node) map[string][]string {
+	labels := make(map[string][]string)
+	seen := make(map[string]map[string]struct{})
 	for _, n := range nodes {
 		for k, v := range n.Labels {
-			qn.Labels[k] = append(qn.Labels[k], v)
+			if _, ok := seen[k]; !ok {
+				seen[k] = make(map[string]struct{})
+			}
+			if _, ok := seen[k][v]; ok {
+				continue
+			} else {
+				seen[k][v] = struct{}{}
+				labels[k] = append(labels[k], v)
+			}
 		}
 	}
-	return qn
+	return labels
 }
 
 func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) QueriedNodes {
@@ -54,9 +59,13 @@ func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) QueriedNod
 		// TODO: Show error message
 		panic(err)
 	}
+	labelsIndexForAllNodes := indexLabels(nodes)
 	labelSelectors = strings.TrimSpace(labelSelectors)
 	if len(labelSelectors) == 0 {
-		return newQueriedNodes(nodes)
+		return QueriedNodes{
+			Nodes:  nodes,
+			Labels: labelsIndexForAllNodes,
+		}
 	}
 	var selectors [][2]string
 	for _, selector := range strings.Split(labelSelectors, ",") {
@@ -71,15 +80,16 @@ func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) QueriedNod
 	for _, n := range nodes {
 		for _, selector := range selectors {
 			k, v := selector[0], selector[1]
-			runtime.LogPrintf(a.ctx, "Selector: %v", selector)
-			runtime.LogPrintf(a.ctx, "Labels: %v", n.Labels)
 			if n.Labels[k] == v {
 				selected = append(selected, n)
 				break
 			}
 		}
 	}
-	return newQueriedNodes(selected)
+	return QueriedNodes{
+		Nodes:  selected,
+		Labels: labelsIndexForAllNodes,
+	}
 }
 
 func (a *App) GetCurrentContext() string {
