@@ -30,7 +30,25 @@ func (a *App) startup(ctx context.Context) {
 	a.ctx = ctx
 }
 
-func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) []k8s.Node {
+type QueriedNodes struct {
+	Nodes  []k8s.Node          `json:"nodes"`
+	Labels map[string][]string `json:"labels"`
+}
+
+func newQueriedNodes(nodes []k8s.Node) QueriedNodes {
+	qn := QueriedNodes{
+		Nodes:  nodes,
+		Labels: make(map[string][]string),
+	}
+	for _, n := range nodes {
+		for k, v := range n.Labels {
+			qn.Labels[k] = append(qn.Labels[k], v)
+		}
+	}
+	return qn
+}
+
+func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) QueriedNodes {
 	nodes, err := a.nodesManager.GetNodes(a.ctx, shouldClearCache)
 	if err != nil {
 		// TODO: Show error message
@@ -38,7 +56,7 @@ func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) []k8s.Node
 	}
 	labelSelectors = strings.TrimSpace(labelSelectors)
 	if len(labelSelectors) == 0 {
-		return nodes
+		return newQueriedNodes(nodes)
 	}
 	var selectors [][2]string
 	for _, selector := range strings.Split(labelSelectors, ",") {
@@ -61,7 +79,7 @@ func (a *App) ListNodes(shouldClearCache bool, labelSelectors string) []k8s.Node
 			}
 		}
 	}
-	return selected
+	return newQueriedNodes(selected)
 }
 
 func (a *App) GetCurrentContext() string {

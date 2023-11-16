@@ -7,6 +7,7 @@
 
   let currentContext: string = "Unknown"
   let loading: boolean = true
+  let labels: {[key: string]: string[]}
   let nodes: k8s.Node[] = []
   let message: string = ""
   let labelSelectors: string = ""
@@ -14,9 +15,13 @@
 
   function listNodes(): void {
     nodes = []
+    labels = {}
     loading = true
     ListNodes(shouldClearCache, labelSelectors).then(result => {
-      nodes = result == null ? [] : result
+      if (result.nodes != null) {
+        nodes = result.nodes
+        labels = result.labels
+      }
       sort("instanceType", false)
       loading = false
     })
