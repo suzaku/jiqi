@@ -90,7 +90,7 @@
     return `${quantity.toFixed(2)} ${unit}`
   }
 
-  function updateLabelSelectors() {
+  $: {
     if (selectedLabel != "" && selectedValue != "") {
       labelSelectors = `${selectedLabel}=${selectedValue}`
     } else {
@@ -118,7 +118,7 @@
   <button
     class="border rounded-2xl px-4 py-2"
     on:click={() => shouldClearCache = true} >Refresh</button>
-  <form on:submit|preventDefault={updateLabelSelectors}>
+  <form>
     {#if labelKeys != null}
     <label>
       Label:
@@ -146,7 +146,6 @@
         {/if}
       </select>
     </label>
-    <input type="submit" value="Query"  >
     {/if}
   </form>
 </header>
