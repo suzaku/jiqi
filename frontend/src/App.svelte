@@ -182,10 +182,10 @@
           <a on:click={BrowserOpenURL(`https://instances.vantage.sh/aws/ec2/${instanceType}`)}>{instanceType}</a>
         </td>
         <td>
-          {usage.cpu.toFixed(1)}/{capacity.cpu}
+          {(usage.cpu/capacity.cpu*100).toFixed(2)}% ({usage.cpu}m)
         </td>
         <td>
-          {humanizeSize(usage.memory)}/{humanizeSize(capacity.memory)}
+          {(usage.memory/capacity.memory*100).toFixed(2)}% ({humanizeSize(usage.memory)})
         </td>
         <td class="ec2">
           <a on:click={BrowserOpenURL(consolePageURL)}></a>

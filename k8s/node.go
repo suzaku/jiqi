@@ -23,13 +23,13 @@ type Node struct {
 }
 
 type NodeUsage struct {
-	Cpu    float64 `json:"cpu"`
-	Memory float64 `json:"memory"`
+	Cpu    int64 `json:"cpu"`
+	Memory int64 `json:"memory"`
 }
 
 type NodeCapacity struct {
-	Cpu    float64 `json:"cpu"`
-	Memory float64 `json:"memory"`
+	Cpu    int64 `json:"cpu"`
+	Memory int64 `json:"memory"`
 }
 
 func (nm NodesManager) getNodesMetric(ctx context.Context) (map[string]NodeUsage, error) {
@@ -49,11 +49,9 @@ func (nm NodesManager) getNodesMetric(ctx context.Context) (map[string]NodeUsage
 
 	usages := make(map[string]NodeUsage, len(nodeMetricsList.Items))
 	for _, metric := range nodeMetricsList.Items {
-		memUsage := metric.Usage.Memory().AsApproximateFloat64()
-		cpuUsage := metric.Usage.Cpu().AsApproximateFloat64()
 		usages[metric.Name] = NodeUsage{
-			Cpu:    cpuUsage,
-			Memory: memUsage,
+			Cpu:    metric.Usage.Cpu().MilliValue(),
+			Memory: metric.Usage.Memory().Value(),
 		}
 	}
 	return usages, nil
@@ -114,8 +112,8 @@ func (nm NodesManager) GetNodes(ctx context.Context, shouldClearCache bool) ([]N
 			instanceType = "unknown"
 		}
 		capacity := NodeCapacity{
-			Cpu:    node.Status.Capacity.Cpu().AsApproximateFloat64(),
-			Memory: node.Status.Capacity.Memory().AsApproximateFloat64(),
+			Cpu:    node.Status.Capacity.Cpu().MilliValue(),
+			Memory: node.Status.Capacity.Memory().Value(),
 		}
 		myNodes[i] = Node{
 			Name:           node.Name,
